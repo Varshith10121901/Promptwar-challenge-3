@@ -107,6 +107,26 @@ npm run test:unit
 npm run test:integration
 ```
 
+### Running with Docker
+You can containerize the application to simplify deployment:
+
+1. **Build the Docker Image**:
+   ```bash
+   docker build -t ecotracker-app .
+   ```
+   *(Note: The build stages execute all test suites and linter checks. If any test fails, the image compilation will halt, securing deployment safety.)*
+
+2. **Run the Container**:
+   Mount a local directory to host the persistent SQLite database file:
+   ```bash
+   # Create a local data directory to persist database.sqlite
+   mkdir data
+   
+   # Run container mounting data folder
+   docker run -d -p 3000:3000 -v "$(pwd)/data:/app/data" --name ecotracker ecotracker-app
+   ```
+   Access the app at `http://localhost:3000`.
+
 ---
 
 ## 🛡️ Evaluation Focus Verification
