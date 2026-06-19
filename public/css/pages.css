@@ -1,0 +1,489 @@
+/*
+ * Page-Specific CSS: Landing, Dashboard, Calculator, Challenges, Education
+ */
+
+/* Landing Page Hero */
+.hero {
+  padding: 100px 0 60px;
+  text-align: center;
+  position: relative;
+}
+
+.hero-title {
+  font-size: 3.5rem;
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, #ffffff 0%, var(--text-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-title span {
+  background: linear-gradient(135deg, var(--color-primary) 0%, #34d399 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-subtitle {
+  font-size: 1.25rem;
+  color: var(--text-secondary);
+  max-width: 600px;
+  margin: 0 auto 40px;
+}
+
+/* Feature Cards Grid */
+.features-grid {
+  margin-top: 60px;
+}
+
+.feature-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  background: var(--color-primary-glow);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+}
+
+/* Auth Modal Dialogs */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(4, 6, 10, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  width: 90%;
+  max-width: 450px;
+  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 4px;
+  transition: color var(--transition-fast);
+}
+
+.modal-close:hover {
+  color: var(--text-primary);
+}
+
+/* Dashboard Metrics & Layout */
+.dashboard-grid {
+  grid-template-columns: 2fr 1fr;
+}
+
+@media (max-width: 900px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.metric-card {
+  text-align: center;
+  padding: 20px;
+}
+
+.metric-val {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--color-primary);
+  line-height: 1.2;
+  margin: 10px 0 5px;
+}
+
+.metric-label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Quick Add Form inside dashboard */
+.quick-add-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.quick-add-btn {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 15px 10px;
+  text-align: center;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.quick-add-btn:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-glow);
+  transform: translateY(-2px);
+}
+
+/* Insights Listing */
+.insight-card {
+  border-left: 4px solid var(--color-accent);
+  margin-bottom: 15px;
+}
+
+.insight-card.transport { border-left-color: var(--color-warning); }
+.insight-card.food { border-left-color: var(--color-danger); }
+.insight-card.energy { border-left-color: var(--color-accent); }
+.insight-card.consumption { border-left-color: var(--color-primary); }
+
+.insight-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.insight-title {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.insight-saving {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  background: var(--color-primary-glow);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.insight-body {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+.insight-action {
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--text-primary);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 8px;
+}
+
+/* Log history list */
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 12px 18px;
+}
+
+.history-details h4 {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.history-details p {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.history-emissions {
+  text-align: right;
+}
+
+.history-kg {
+  font-weight: 700;
+  color: var(--color-danger);
+}
+
+.history-item.low-emission .history-kg {
+  color: var(--color-primary);
+}
+
+.history-delete-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 5px;
+  margin-left: 15px;
+  transition: color var(--transition-fast);
+}
+
+.history-delete-btn:hover {
+  color: var(--color-danger);
+}
+
+/* Calculator Wizard */
+.calc-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 30px;
+  overflow-x: auto;
+}
+
+.calc-tab {
+  background: none;
+  border: none;
+  padding: 12px 24px;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.calc-tab:hover {
+  color: var(--text-primary);
+}
+
+.calc-tab.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+.calc-panel {
+  display: none;
+  animation: fadeIn 0.4s ease forwards;
+}
+
+.calc-panel.active {
+  display: block;
+}
+
+/* Equivalents display panel in calculator */
+.calc-results-preview {
+  margin-top: 30px;
+  padding: 20px;
+  background: rgba(16, 185, 129, 0.05);
+  border: 1px solid rgba(16, 185, 129, 0.15);
+  border-radius: 12px;
+}
+
+.equivalents-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-top: 15px;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .equivalents-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.equivalent-item {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.equivalent-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.equivalent-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+/* Challenges Page Streaks & Badges */
+.streak-display {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.streak-number {
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--color-warning);
+  text-shadow: 0 0 15px rgba(245, 158, 11, 0.2);
+}
+
+.streak-info h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.streak-info p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.badges-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 20px;
+}
+
+.badge-item {
+  text-align: center;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 15px 10px;
+  transition: transform var(--transition-fast);
+}
+
+.badge-item:hover {
+  transform: scale(1.05);
+}
+
+.badge-icon {
+  font-size: 2.2rem;
+  margin-bottom: 8px;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.1));
+}
+
+.badge-item.locked {
+  opacity: 0.4;
+  filter: grayscale(1);
+}
+
+.badge-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+/* Challenge Enrollment Card list */
+.challenge-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.challenge-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+}
+
+@media (max-width: 700px) {
+  .challenge-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  .challenge-item button {
+    width: 100%;
+  }
+}
+
+.challenge-info h3 {
+  font-size: 1.1rem;
+  margin-bottom: 5px;
+}
+
+.challenge-info p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+
+.challenge-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 0.8rem;
+}
+
+/* Education Layout */
+.edu-grid {
+  grid-template-columns: 2fr 1fr;
+}
+
+@media (max-width: 900px) {
+  .edu-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.fact-card {
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(59, 130, 246, 0.05) 100%);
+  margin-bottom: 15px;
+}
+
+.fact-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+
+.article-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.article-item h3 {
+  font-size: 1.3rem;
+  margin-bottom: 10px;
+  color: var(--color-primary);
+}
+
+.article-meta {
+  display: flex;
+  gap: 15px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.article-body {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}

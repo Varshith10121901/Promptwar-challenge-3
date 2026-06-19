@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Track, understand, and reduce your carbon footprint with personalized AI recommendations and interactive calculators on the Carbon Footprint Awareness Platform.">
+  <title>Carbon Footprint Awareness Platform — EcoTracker</title>
+  
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="stylesheet" href="/css/pages.css">
+</head>
+<body>
+  
+  <a href="#main-content" class="skip-link">Skip to Content</a>
+
+  <!-- Header Navigation -->
+  <header class="navbar">
+    <a href="/" class="nav-brand" id="nav-home-logo" aria-label="EcoTracker Home">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-right: 5px; vertical-align: middle;">
+        <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 3.28 2 8a7 7 0 0 1-10 10Z"></path>
+        <path d="M9 22a1 1 0 0 1-1-1v-3a1 1 0 0 0-1-1H4a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1h3a1 1 0 0 0 1-1V7a1 1 0 0 1 1-1h4"></path>
+      </svg>
+      EcoTracker
+    </a>
+    <nav aria-label="Main Navigation">
+      <ul class="nav-links">
+        <li><a href="/" class="active">Home</a></li>
+        <li><a href="/dashboard.html" id="nav-dashboard-link" style="display: none;">Dashboard</a></li>
+        <li><a href="/calculator.html" id="nav-calculator-link" style="display: none;">Calculator</a></li>
+        <li><a href="/challenges.html" id="nav-challenges-link" style="display: none;">Challenges</a></li>
+        <li><a href="/education.html">Education</a></li>
+        <li id="auth-nav-item">
+          <button class="btn btn-primary" id="open-login-btn">Sign In</button>
+        </li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- Hero Section -->
+  <main id="main-content">
+    <section class="container hero animate-fade-in" aria-labelledby="hero-title">
+      <h1 class="hero-title" id="hero-title">Track, Reduce, and <span>Neutralize</span> Your Carbon Footprint</h1>
+      <p class="hero-subtitle">
+        Understand your impact. EcoTracker uses localized algorithms to analyze your lifestyle, transport, and energy habits, giving you personalized, actionable steps to build a sustainable future.
+      </p>
+      <div style="display: flex; gap: 15px; justify-content: center;">
+        <button class="btn btn-primary" id="get-started-btn">Get Started for Free</button>
+        <a href="/education.html" class="btn btn-secondary">Learn About Carbon Literacy</a>
+      </div>
+    </section>
+
+    <!-- Key Features Section -->
+    <section class="container" aria-labelledby="features-title" style="margin-top: 40px;">
+      <h2 class="text-center" id="features-title" style="font-size: 2.2rem; font-weight: 800; margin-bottom: 50px;">
+        Designed for Action and Awareness
+      </h2>
+      <div class="grid grid-3 features-grid">
+        <article class="card">
+          <div class="feature-icon" aria-hidden="true">📊</div>
+          <h3>Smart Carbon Calculator</h3>
+          <p style="color: var(--text-secondary); margin-top: 10px; font-size: 0.95rem;">
+            Quickly input logs for commute, energy use, and diets. Get immediate conversions to relatable comparisons like tree-days and phone charges.
+          </p>
+        </article>
+        <article class="card">
+          <div class="feature-icon" aria-hidden="true">🤖</div>
+          <h3>AI-Powered Insights</h3>
+          <p style="color: var(--text-secondary); margin-top: 10px; font-size: 0.95rem;">
+            Our intelligent recommendation engine analyzes your historical logging data to surface your highest-impact lifestyle reductions.
+          </p>
+        </article>
+        <article class="card">
+          <div class="feature-icon" aria-hidden="true">🏆</div>
+          <h3>Gamified Challenges</h3>
+          <p style="color: var(--text-secondary); margin-top: 10px; font-size: 0.95rem;">
+            Build healthy green habits. Track daily streak multiplier bonuses, earn achievement badges, and commit to weekly reduction goals.
+          </p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <!-- Login Modal -->
+  <div class="modal-overlay" id="login-modal" role="dialog" aria-modal="true" aria-labelledby="login-modal-title">
+    <div class="card modal-content">
+      <div class="modal-header">
+        <h2 id="login-modal-title" style="font-size: 1.5rem;">Sign In to EcoTracker</h2>
+        <button class="modal-close" id="close-login-btn" aria-label="Close modal">&times;</button>
+      </div>
+      <div class="alert-container" id="login-alert" style="display: none; margin-bottom: 15px; padding: 10px; border-radius: 6px; font-size: 0.9rem; background: rgba(239, 68, 68, 0.1); color: var(--color-danger); border: 1px solid rgba(239, 68, 68, 0.2);"></div>
+      <form id="login-form">
+        <div class="form-group">
+          <label for="login-username">Username or Email</label>
+          <input type="text" id="login-username" class="form-control" required placeholder="e.g., greenUser">
+        </div>
+        <div class="form-group">
+          <label for="login-password">Password</label>
+          <input type="password" id="login-password" class="form-control" required placeholder="••••••••">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">Sign In</button>
+      </form>
+      <p style="font-size: 0.85rem; color: var(--text-secondary); text-center: center; margin-top: 20px; text-align: center;">
+        Don't have an account? <button id="switch-to-register-btn" style="background: none; border: none; color: var(--color-primary); cursor: pointer; font-weight: 600; font-family: inherit;">Create Account</button>
+      </p>
+    </div>
+  </div>
+
+  <!-- Register Modal -->
+  <div class="modal-overlay" id="register-modal" role="dialog" aria-modal="true" aria-labelledby="register-modal-title">
+    <div class="card modal-content">
+      <div class="modal-header">
+        <h2 id="register-modal-title" style="font-size: 1.5rem;">Create Account</h2>
+        <button class="modal-close" id="close-register-btn" aria-label="Close modal">&times;</button>
+      </div>
+      <div class="alert-container" id="register-alert" style="display: none; margin-bottom: 15px; padding: 10px; border-radius: 6px; font-size: 0.9rem; background: rgba(239, 68, 68, 0.1); color: var(--color-danger); border: 1px solid rgba(239, 68, 68, 0.2);"></div>
+      <form id="register-form">
+        <div class="form-group">
+          <label for="register-username">Username (alphanumeric, 3-20 chars)</label>
+          <input type="text" id="register-username" class="form-control" required placeholder="e.g., ecocitizen">
+        </div>
+        <div class="form-group">
+          <label for="register-email">Email Address</label>
+          <input type="email" id="register-email" class="form-control" required placeholder="e.g., you@domain.com">
+        </div>
+        <div class="form-group">
+          <label for="register-password">Password (min 6 characters)</label>
+          <input type="password" id="register-password" class="form-control" required placeholder="••••••••">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">Register</button>
+      </form>
+      <p style="font-size: 0.85rem; color: var(--text-secondary); text-center: center; margin-top: 20px; text-align: center;">
+        Already have an account? <button id="switch-to-login-btn" style="background: none; border: none; color: var(--color-primary); cursor: pointer; font-weight: 600; font-family: inherit;">Sign In</button>
+      </p>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2026 EcoTracker. Empowering carbon neutrality through simple daily actions.</p>
+  </footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    // Simple UI bindings for Landing page
+    const openLoginBtn = document.getElementById('open-login-btn');
+    const getStartedBtn = document.getElementById('get-started-btn');
+    const loginModal = document.getElementById('login-modal');
+    const registerModal = document.getElementById('register-modal');
+    const closeLoginBtn = document.getElementById('close-login-btn');
+    const closeRegisterBtn = document.getElementById('close-register-btn');
+    const switchToRegisterBtn = document.getElementById('switch-to-register-btn');
+    const switchToLoginBtn = document.getElementById('switch-to-login-btn');
+
+    const showModal = (modal) => {
+      modal.style.display = 'flex';
+      // accessibility focus trap starter
+      const closeBtn = modal.querySelector('.modal-close');
+      if (closeBtn) closeBtn.focus();
+    };
+
+    const hideModal = (modal) => { modal.style.display = 'none'; };
+
+    if (openLoginBtn) openLoginBtn.addEventListener('click', () => showModal(loginModal));
+    if (getStartedBtn) getStartedBtn.addEventListener('click', () => showModal(registerModal));
+    
+    closeLoginBtn.addEventListener('click', () => hideModal(loginModal));
+    closeRegisterBtn.addEventListener('click', () => hideModal(registerModal));
+
+    switchToRegisterBtn.addEventListener('click', () => {
+      hideModal(loginModal);
+      showModal(registerModal);
+    });
+
+    switchToLoginBtn.addEventListener('click', () => {
+      hideModal(registerModal);
+      showModal(loginModal);
+    });
+
+    // Close on overlay click
+    window.addEventListener('click', (e) => {
+      if (e.target === loginModal) hideModal(loginModal);
+      if (e.target === registerModal) hideModal(registerModal);
+    });
+
+    // Handle escape key
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        hideModal(loginModal);
+        hideModal(registerModal);
+      }
+    });
+
+    // Show nav elements if logged in
+    document.addEventListener('DOMContentLoaded', () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        document.getElementById('nav-dashboard-link').style.display = 'block';
+        document.getElementById('nav-calculator-link').style.display = 'block';
+        document.getElementById('nav-challenges-link').style.display = 'block';
+        
+        const authItem = document.getElementById('auth-nav-item');
+        authItem.innerHTML = `<button class="btn btn-secondary" onclick="logout()">Sign Out</button>`;
+      }
+    });
+
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.reload();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Explore carbon literacy articles, read about food miles, home energy vampire loads, active transport health benefits, and fast fashion effects.">
+  <title>EcoTracker — Educational Hub</title>
+  
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="stylesheet" href="/css/pages.css">
+</head>
+<body>
+
+  <a href="#education-main" class="skip-link">Skip to Content</a>
+
+  <!-- Header Navigation -->
+  <header class="navbar">
+    <a href="/" class="nav-brand" id="nav-home-logo" aria-label="EcoTracker Home">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-right: 5px; vertical-align: middle;">
+        <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 3.28 2 8a7 7 0 0 1-10 10Z"></path>
+        <path d="M9 22a1 1 0 0 1-1-1v-3a1 1 0 0 0-1-1H4a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1h3a1 1 0 0 0 1-1V7a1 1 0 0 1 1-1h4"></path>
+      </svg>
+      EcoTracker
+    </a>
+    <nav aria-label="Main Navigation">
+      <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/dashboard.html" id="nav-dashboard-link" style="display: none;">Dashboard</a></li>
+        <li><a href="/calculator.html" id="nav-calculator-link" style="display: none;">Calculator</a></li>
+        <li><a href="/challenges.html" id="nav-challenges-link" style="display: none;">Challenges</a></li>
+        <li><a href="/education.html" class="active">Education</a></li>
+        <li id="auth-nav-item">
+          <!-- Populated dynamically -->
+          <a href="/" class="btn btn-primary">Get Started</a>
+        </li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main id="education-main" class="container animate-fade-in">
+    <header style="margin-bottom: 40px; text-align: center;">
+      <h1 style="font-size: 2.2rem; font-weight: 800;">Carbon Literacy Hub</h1>
+      <p style="color: var(--text-secondary); margin-top: 5px;">Discover the science behind carbon emissions and learn how daily habits shape the ecosystem.</p>
+    </header>
+
+    <div class="grid edu-grid">
+      
+      <!-- Articles List -->
+      <section class="card" aria-labelledby="articles-heading">
+        <h2 id="articles-heading" style="font-size: 1.3rem; font-weight: 800; margin-bottom: 30px;">
+          📚 Carbon Literacy Articles
+        </h2>
+        <div class="article-list" id="articles-container">
+          <p style="color: var(--text-secondary);">Loading carbon literacy articles...</p>
+        </div>
+      </section>
+
+      <!-- Right Column: Interactive Facts -->
+      <section style="display: flex; flex-direction: column; gap: 30px;" aria-label="Carbon Facts & Utilities">
+        
+        <div class="card fact-card text-center" style="padding: 30px 20px;">
+          <div class="fact-title">Did You Know?</div>
+          <p id="fact-display-text" style="font-size: 1.05rem; font-weight: 500; min-height: 80px; display: flex; align-items: center; justify-content: center; line-height: 1.4; color: var(--text-primary); margin: 15px 0;">
+            Loading environment facts...
+          </p>
+          <button class="btn btn-secondary" id="next-fact-btn" style="margin: 0 auto; display: inline-flex; font-size: 0.8rem; padding: 6px 16px;">
+            Next Fact
+          </button>
+        </div>
+
+        <div class="card" style="padding: 24px;">
+          <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 12px;">Useful External Resources</h3>
+          <ul style="color: var(--text-secondary); font-size: 0.9rem; padding-left: 20px; display: flex; flex-direction: column; gap: 8px;">
+            <li><a href="https://www.epa.gov/climate-indicators" target="_blank" rel="noopener noreferrer" style="color: var(--color-primary); text-decoration: none;">US EPA Climate Indicators</a></li>
+            <li><a href="https://www.footprintnetwork.org/" target="_blank" rel="noopener noreferrer" style="color: var(--color-primary); text-decoration: none;">Global Footprint Network</a></li>
+            <li><a href="https://ourworldindata.org/co2-and-greenhouse-gas-emissions" target="_blank" rel="noopener noreferrer" style="color: var(--color-primary); text-decoration: none;">Our World in Data — CO₂</a></li>
+          </ul>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 EcoTracker. Empowering carbon neutrality through simple daily actions.</p>
+  </footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/education.js"></script>
+  <script>
+    // Header setup
+    document.addEventListener('DOMContentLoaded', () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        document.getElementById('nav-dashboard-link').style.display = 'block';
+        document.getElementById('nav-calculator-link').style.display = 'block';
+        document.getElementById('nav-challenges-link').style.display = 'block';
+        
+        const authItem = document.getElementById('auth-nav-item');
+        authItem.innerHTML = `<button class="btn btn-secondary" onclick="logout()">Sign Out</button>`;
+      }
+    });
+
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/';
+    }
+  </script>
+</body>
+</html>

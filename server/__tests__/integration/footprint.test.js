@@ -1,0 +1,105 @@
+/**
+ * Integration tests for Footprint APIs
+ */
+const request = require('supertest');
+const app = require('../../app');
+const db = require('../../config/database');
+
+let testToken = '';
+let targetLogId = null;
+
+beforeAll(async () => {
+  await db.runMigrations();
+
+  // Create a user and fetch authorization token
+  const registerRes = await request(app)
+    .post('/api/auth/register')
+    .send({
+      username: 'trackerUser',
+      email: 'tracker@domain.com',
+      password: 'password123'
+    });
+  
+  testToken = registerRes.body.token;
+});
+
+afterAll(async () => {
+  await new Promise((resolve) => db.db.close(resolve));
+});
+
+describe('Footprint API Integration Tests', () => {
+  const mockEntry = {
+    category: 'transport',
+    subCategory: 'car_petrol',
+    value: 50, // 50 km
+    unit: 'km',
+    date: '2026-06-19',
+    notes: 'Commute to office'
+  };
+
+  test('POST /api/footprint - Should successfully log carbon activity and return equivalents', async () => {
+    const res = await request(app)
+      .post('/api/footprint')
+      .set('Authorization', `Bearer ${testToken}`)
+      .send(mockEntry);
+
+    expect(res.status).toBe(211);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.carbonKg).toBe(9.0); // 50 * 0.18 = 9.0
+    expect(res.body.data.equivalents.carKm).toBe(50);
+    expect(res.body.data.id).toBeDefined();
+
+    targetLogId = res.body.data.id; // Save ID to test deletions
+  });
+
+  test('POST /api/footprint - Should return 400 validation error for negative distance', async () => {
+    const invalidEntry = { ...mockEntry, value: -5 };
+    const res = await request(app)
+      .post('/api/footprint')
+      .set('Authorization', `Bearer ${testToken}`)
+      .send(invalidEntry);
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  test('GET /api/footprint - Should retrieve user logs list', async () => {
+    const res = await request(app)
+      .get('/api/footprint')
+      .set('Authorization', `Bearer ${testToken}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.length).toBeGreaterThanOrEqual(1);
+    expect(res.body.data[0].category).toBe('transport');
+  });
+
+  test('GET /api/footprint/summary - Should compile summaries and trends', async () => {
+    const res = await request(app)
+      .get('/api/footprint/summary')
+      .set('Authorization', `Bearer ${testToken}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.totalEmissions).toBe(9.0);
+    expect(res.body.breakdown.length).toBeGreaterThanOrEqual(1);
+    expect(res.body.breakdown[0].category).toBe('transport');
+  });
+
+  test('DELETE /api/footprint/:id - Should delete the footprint log entry', async () => {
+    const res = await request(app)
+      .delete(`/api/footprint/${targetLogId}`)
+      .set('Authorization', `Bearer ${testToken}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+
+    // Verify it's gone
+    const checkRes = await request(app)
+      .get('/api/footprint')
+      .set('Authorization', `Bearer ${testToken}`);
+    
+    const found = checkRes.body.data.find(log => log.id === targetLogId);
+    expect(found).toBeUndefined();
+  });
+});
