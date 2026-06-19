@@ -1,0 +1,14 @@
+node_modules/
+npm-debug.log
+database.sqlite
+database.sqlite-journal
+coverage/
+.git
+.gitignore
+.env
+README.md
+server/__tests__/
+jest.config.js
+.eslintrc.json
+C:\Users\HP\.gemini\antigravity\brain\
+.agents/
