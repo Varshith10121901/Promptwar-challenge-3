@@ -27,10 +27,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 4. Tab Switching handler
   const tabs = document.querySelectorAll('.calc-tab');
   tabs.forEach(tab => {
-    tab.addEventListener('click', (e) => {
+    tab.addEventListener('click', () => {
       // Deactivate all
-      tabs.forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.calc-panel').forEach(p => p.classList.remove('active'));
+      tabs.forEach(t => {
+        t.classList.remove('active');
+      });
+      document.querySelectorAll('.calc-panel').forEach(p => {
+        p.classList.remove('active');
+      });
 
       // Activate clicked
       tab.classList.add('active');
@@ -73,29 +77,26 @@ document.addEventListener('DOMContentLoaded', async () => {
  * Calculates carbon dynamically using cached metadata factors and updates equivalent panels
  */
 function updateLivePreview() {
-  if (!emissionFactors) return;
+  if (!emissionFactors) {
+    return;
+  }
 
   const previewBox = document.getElementById('equivalents-preview-box');
   let value = 0;
   let subCategory = '';
-  let unit = '';
 
   if (activeCategory === 'transport') {
     value = parseFloat(document.getElementById('transport-distance').value) || 0;
     subCategory = document.getElementById('transport-type').value;
-    unit = 'km';
   } else if (activeCategory === 'energy') {
     value = parseFloat(document.getElementById('energy-value').value) || 0;
     subCategory = document.getElementById('energy-type').value;
-    unit = subCategory === 'heating_oil' ? 'liters' : (subCategory === 'coal' ? 'kg' : 'kWh');
   } else if (activeCategory === 'food') {
     value = parseFloat(document.getElementById('food-value').value) || 0;
     subCategory = document.getElementById('food-type').value;
-    unit = subCategory.endsWith('meal') ? 'meals' : 'kg';
   } else if (activeCategory === 'consumption') {
     value = parseFloat(document.getElementById('consumption-value').value) || 0;
     subCategory = document.getElementById('consumption-type').value;
-    unit = subCategory === 'clothing_item' || subCategory.startsWith('electronics') ? 'items' : 'kg';
   }
 
   if (value <= 0) {
@@ -203,7 +204,9 @@ async function handleFormSubmit(e) {
 function showAchievementUnlocked(achievement) {
   const modal = document.getElementById('achievement-modal');
   const details = document.getElementById('unlocked-badge-details');
-  if (!modal || !details) return;
+  if (!modal || !details) {
+    return;
+  }
 
   details.innerHTML = `
     <div style="font-size: 3rem; margin-bottom: 5px;">${achievement.icon || '⭐'}</div>

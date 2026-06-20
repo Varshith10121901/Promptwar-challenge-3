@@ -34,6 +34,12 @@ describe('Carbon Calculator Unit Tests', () => {
       expect(() => calculator.calculateEmissions('transport', 'invalid_sub', 10)).toThrow();
     });
 
+    test('should throw error for missing parameters', () => {
+      expect(() => calculator.calculateEmissions()).toThrow('Category, subCategory, and value are required');
+      expect(() => calculator.calculateEmissions('transport')).toThrow('Category, subCategory, and value are required');
+      expect(() => calculator.calculateEmissions('transport', 'car_petrol')).toThrow('Category, subCategory, and value are required');
+    });
+
     test('should throw error for negative values', () => {
       expect(() => calculator.calculateEmissions('transport', 'car_petrol', -10)).toThrow();
     });

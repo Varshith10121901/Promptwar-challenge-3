@@ -43,7 +43,9 @@ async function refreshChallengesPage() {
  */
 function renderAchievementsShelf(earnedAchievements) {
   const container = document.getElementById('badges-container');
-  if (!container) return;
+  if (!container) {
+    return;
+  }
 
   const earnedNames = new Set(earnedAchievements.map(a => a.name));
 
@@ -73,7 +75,9 @@ function renderAchievementsShelf(earnedAchievements) {
  */
 async function loadChallengesList() {
   const container = document.getElementById('challenges-container');
-  if (!container) return;
+  if (!container) {
+    return;
+  }
 
   try {
     // Get all system challenges
@@ -172,3 +176,7 @@ async function completeChallenge(id) {
     alert(err.message || 'Failed to complete challenge');
   }
 }
+
+// Bind handlers to the window object so they can be called from HTML onclick attributes
+window.enrollChallenge = enrollChallenge;
+window.completeChallenge = completeChallenge;

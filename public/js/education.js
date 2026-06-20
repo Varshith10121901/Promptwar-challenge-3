@@ -86,7 +86,9 @@ function toggleArticle(id) {
  * Sequentially rotates environmental facts
  */
 function rotateFact() {
-  if (factsList.length === 0) return;
+  if (factsList.length === 0) {
+    return;
+  }
 
   const factText = document.getElementById('fact-display-text');
   
@@ -104,3 +106,6 @@ function rotateFact() {
     factText.style.transform = 'translateY(0)';
   }, 200);
 }
+
+// Bind handlers to the window object so they can be called from HTML onclick attributes
+window.toggleArticle = toggleArticle;

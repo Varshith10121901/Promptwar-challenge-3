@@ -14,8 +14,12 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const hideAlerts = () => {
-    if (loginAlert) loginAlert.style.display = 'none';
-    if (registerAlert) registerAlert.style.display = 'none';
+    if (loginAlert) {
+      loginAlert.style.display = 'none';
+    }
+    if (registerAlert) {
+      registerAlert.style.display = 'none';
+    }
   };
 
   // Login handler

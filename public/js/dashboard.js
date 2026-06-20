@@ -32,7 +32,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   if (closeGoalBtn) {
-    closeGoalBtn.addEventListener('click', () => { goalModal.style.display = 'none'; });
+    closeGoalBtn.addEventListener('click', () => {
+      goalModal.style.display = 'none';
+    });
   }
 
   if (goalForm) {
@@ -95,6 +97,18 @@ async function refreshDashboard() {
       relativeDesc.style.color = 'var(--color-danger)';
     }
 
+    // Update goal progress bar fill percentage
+    const fillPercent = Math.min((stats.totalEmissions / user.carbon_goal) * 100, 100);
+    const progressFill = document.getElementById('goal-progress-fill');
+    if (progressFill) {
+      progressFill.style.width = `${fillPercent}%`;
+      if (stats.totalEmissions > user.carbon_goal) {
+        progressFill.style.backgroundColor = 'var(--color-danger)';
+      } else {
+        progressFill.style.backgroundColor = 'var(--color-primary)';
+      }
+    }
+
     // Render charts
     renderCharts(stats);
 
@@ -116,11 +130,17 @@ function renderCharts(stats) {
   const ctxCat = document.getElementById('categoryChart');
   const ctxTrend = document.getElementById('trendChart');
   
-  if (!ctxCat || !ctxTrend) return;
+  if (!ctxCat || !ctxTrend) {
+    return;
+  }
 
   // Destroy existing charts to prevent canvas overlays
-  if (categoryChartInstance) categoryChartInstance.destroy();
-  if (trendChartInstance) trendChartInstance.destroy();
+  if (categoryChartInstance) {
+    categoryChartInstance.destroy();
+  }
+  if (trendChartInstance) {
+    trendChartInstance.destroy();
+  }
 
   // 1. Process Category Breakdown Data
   const categories = ['transport', 'energy', 'food', 'consumption'];
@@ -222,7 +242,9 @@ function renderCharts(stats) {
 async function loadHistoryLogs() {
   const container = document.getElementById('activity-log-container');
   const pagControls = document.getElementById('pagination-controls');
-  if (!container) return;
+  if (!container) {
+    return;
+  }
 
   try {
     const listRes = await API.footprint.list(currentPage, limitPerPage);
@@ -296,7 +318,9 @@ async function changePage(offset) {
  * Handle delete action
  */
 async function deleteLogEntry(id) {
-  if (!confirm('Are you sure you want to delete this activity log?')) return;
+  if (!confirm('Are you sure you want to delete this activity log?')) {
+    return;
+  }
 
   try {
     const res = await API.footprint.delete(id);
@@ -313,7 +337,9 @@ async function deleteLogEntry(id) {
  */
 async function loadAIRecommendations() {
   const container = document.getElementById('ai-insights-container');
-  if (!container) return;
+  if (!container) {
+    return;
+  }
 
   try {
     const res = await API.insights.get();
@@ -358,10 +384,6 @@ async function loadAIRecommendations() {
  * Log positive carbon offset action from recommendation cards
  */
 async function logRecommendationAction(category, recId, savingKg) {
-  // Let's create an offset entry. In our system, recycled waste has a negative factor.
-  // Or we can log a note indicating they completed a reduction task.
-  // We log under 'consumption' / 'recycled_waste' to credit them, or log with a note!
-  // Let's log it with a value that creates a carbon-neutral or reduction action!
   let data = {
     category: 'consumption',
     subCategory: 'recycled_waste',
@@ -416,7 +438,9 @@ async function quickLog(category, subCategory, value, unit, notes) {
 function showAchievementUnlocked(achievement) {
   const modal = document.getElementById('achievement-modal');
   const details = document.getElementById('unlocked-badge-details');
-  if (!modal || !details) return;
+  if (!modal || !details) {
+    return;
+  }
 
   details.innerHTML = `
     <div style="font-size: 3rem; margin-bottom: 5px;">${achievement.icon || '⭐'}</div>
@@ -429,3 +453,9 @@ function showAchievementUnlocked(achievement) {
 
   modal.style.display = 'flex';
 }
+
+// Bind handlers to the window object so they can be called from HTML onclick attributes
+window.changePage = changePage;
+window.deleteLogEntry = deleteLogEntry;
+window.logRecommendationAction = logRecommendationAction;
+window.quickLog = quickLog;
