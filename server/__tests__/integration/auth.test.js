@@ -185,4 +185,132 @@ describe('Auth API Integration Tests', () => {
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
   });
+
+  test('PUT /api/auth/goal - Should return 404 if goal is unchanged', async () => {
+    // 1. Set goal to 350
+    await request(app)
+      .put('/api/auth/goal')
+      .set('Authorization', `Bearer ${userToken}`)
+      .send({ carbonGoal: 350.0 });
+
+    // 2. Set goal to 350 again
+    const res = await request(app)
+      .put('/api/auth/goal')
+      .set('Authorization', `Bearer ${userToken}`)
+      .send({ carbonGoal: 350.0 });
+
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
+
+  test('POST /api/auth/register - Should handle unexpected errors during registration', async () => {
+    const User = require('../../models/User');
+    const originalFindByUsername = User.findByUsername;
+    User.findByUsername = jest.fn().mockRejectedValue(new Error('Simulated DB Error'));
+
+    const res = await request(app)
+      .post('/api/auth/register')
+      .send({
+        username: 'unluckyUser',
+        email: 'unlucky@domain.com',
+        password: 'Password123'
+      });
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+
+    User.findByUsername = originalFindByUsername;
+  });
+
+  test('POST /api/auth/login - Should handle unexpected errors during login', async () => {
+    const User = require('../../models/User');
+    const originalFindByUsername = User.findByUsername;
+    User.findByUsername = jest.fn().mockRejectedValue(new Error('Simulated DB Error'));
+
+    const res = await request(app)
+      .post('/api/auth/login')
+      .send({
+        username: testUser.username,
+        password: 'Password123'
+      });
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+
+    User.findByUsername = originalFindByUsername;
+  });
+
+  test('GET /api/auth/profile - Should handle unexpected errors in getProfile', async () => {
+    const User = require('../../models/User');
+    const originalFindById = User.findById;
+    User.findById = jest.fn().mockRejectedValue(new Error('Simulated DB Error'));
+
+    const res = await request(app)
+      .get('/api/auth/profile')
+      .set('Authorization', `Bearer ${userToken}`);
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+
+    User.findById = originalFindById;
+  });
+
+  test('PUT /api/auth/goal - Should handle unexpected errors in updateGoal', async () => {
+    const User = require('../../models/User');
+    const originalUpdateGoal = User.updateGoal;
+    User.updateGoal = jest.fn().mockRejectedValue(new Error('Simulated DB Error'));
+
+    const res = await request(app)
+      .put('/api/auth/goal')
+      .set('Authorization', `Bearer ${userToken}`)
+      .send({ carbonGoal: 300 });
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+
+    User.updateGoal = originalUpdateGoal;
+  });
+
+  test('POST /api/auth/refresh - Should handle unexpected errors in refresh', async () => {
+    const jwt = require('jsonwebtoken');
+    const originalSign = jwt.sign;
+    jwt.sign = jest.fn().mockImplementation(() => {
+      throw new Error('Simulated Sign Error');
+    });
+
+    const res = await request(app)
+      .post('/api/auth/refresh')
+      .set('Authorization', `Bearer ${userToken}`);
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+
+    jwt.sign = originalSign;
+  });
+
+  test('POST /api/auth/login - Should login successfully using email', async () => {
+    const res = await request(app)
+      .post('/api/auth/login')
+      .send({
+        username: testUser.email,
+        password: testUser.password
+      });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.token).toBeDefined();
+  });
+
+  test('GET /api/auth/profile - Should return 404 if user not found', async () => {
+    const jwt = require('jsonwebtoken');
+    const env = require('../../config/env');
+    const ghostToken = jwt.sign({ id: 999999, username: 'ghost' }, env.JWT_SECRET, { expiresIn: '1h' });
+
+    const res = await request(app)
+      .get('/api/auth/profile')
+      .set('Authorization', `Bearer ${ghostToken}`);
+
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
 });

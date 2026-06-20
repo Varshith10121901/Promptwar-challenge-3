@@ -34,6 +34,8 @@ const csrfMiddleware = (req, res, next) => {
     });
   }
 
+  req.csrfToken = token;
+
   // 2. Validate token on state-modifying requests
   const stateChangingMethods = ['POST', 'PUT', 'DELETE', 'PATCH'];
   if (stateChangingMethods.includes(req.method)) {

@@ -21,7 +21,7 @@ module.exports = {
    * @returns {any}
    */
   get: (key) => {
-    if (env.NODE_ENV === 'test') {
+    if (env.NODE_ENV === 'test' && !process.env.ENABLE_TEST_CACHE) {
       return null; // Disable caching during tests to ensure isolation
     }
     return cache.get(key);
@@ -34,7 +34,7 @@ module.exports = {
    * @param {number} [ttl] Specific TTL in seconds 
    */
   set: (key, value, ttl) => {
-    if (env.NODE_ENV === 'test') {
+    if (env.NODE_ENV === 'test' && !process.env.ENABLE_TEST_CACHE) {
       return;
     }
     cache.set(key, value, ttl);
@@ -45,7 +45,7 @@ module.exports = {
    * @param {string} key 
    */
   del: (key) => {
-    if (env.NODE_ENV === 'test') {
+    if (env.NODE_ENV === 'test' && !process.env.ENABLE_TEST_CACHE) {
       return;
     }
     cache.del(key);

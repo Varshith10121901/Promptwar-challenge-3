@@ -60,6 +60,13 @@ const User = {
    * @returns {Promise<boolean>}
    */
   updateGoal: async (id, goal) => {
+    const user = await db.get('SELECT carbon_goal FROM users WHERE id = ?', [id]);
+    if (!user) {
+      return false;
+    }
+    if (user.carbon_goal === goal) {
+      return false;
+    }
     const sql = 'UPDATE users SET carbon_goal = ? WHERE id = ?';
     const result = await db.run(sql, [goal, id]);
     return result.changes > 0;

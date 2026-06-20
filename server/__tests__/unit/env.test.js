@@ -57,4 +57,19 @@ describe('Environment Variables Unit Tests', () => {
       process.env.JWT_SECRET = originalEnvSecret;
     }
   });
+
+  test('should fallback to default database file if not specified', () => {
+    const originalEnvSecret = process.env.JWT_SECRET;
+    const originalDbFile = process.env.DATABASE_FILE;
+    process.env.JWT_SECRET = 'some_dummy_jwt_secret_token';
+    delete process.env.DATABASE_FILE;
+    
+    try {
+      const envConfig = require('../../config/env');
+      expect(envConfig.DATABASE_FILE).toBe('./database.sqlite');
+    } finally {
+      process.env.JWT_SECRET = originalEnvSecret;
+      process.env.DATABASE_FILE = originalDbFile;
+    }
+  });
 });

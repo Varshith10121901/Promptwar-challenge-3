@@ -172,4 +172,29 @@ describe('AI Insights Engine Unit Tests', () => {
     const result = engine.generateInsights(entries, mockUser);
     expect(result.recommendations.length).toBeGreaterThanOrEqual(3);
   });
+
+  test('should support diesel fuelType and fallback user goal', () => {
+    const entries = [
+      { category: 'transport', sub_category: 'car_diesel', carbon_kg: 90, date: '2026-06-01' }
+    ];
+    // Pass user without carbon_goal to trigger default 500.0 goal
+    const result = engine.generateInsights(entries, { username: 'goalLessUser' });
+    expect(result.summary).toContain('monthly target of 500');
+    const rec = result.recommendations.find(r => r.id === 'rec_transport_car');
+    expect(rec.description).toContain('diesel car emissions');
+  });
+
+  test('should handle minimal savings fallbacks for food and energy', () => {
+    const entries = [
+      { category: 'food', sub_category: 'beef', carbon_kg: 0.0001, date: '2026-06-01' },
+      { category: 'energy', sub_category: 'electricity_grid', carbon_kg: 0.0001, date: '2026-06-02' }
+    ];
+    const result = engine.generateInsights(entries, mockUser);
+    
+    const beefRec = result.recommendations.find(r => r.id === 'rec_food_beef');
+    expect(beefRec.potential_saving_kg).toBe(25.0);
+
+    const energyRec = result.recommendations.find(r => r.id === 'rec_energy_efficiency');
+    expect(energyRec.potential_saving_kg).toBe(15.0);
+  });
 });

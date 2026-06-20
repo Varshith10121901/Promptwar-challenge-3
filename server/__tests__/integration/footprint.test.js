@@ -102,4 +102,80 @@ describe('Footprint API Integration Tests', () => {
     const found = checkRes.body.data.find(log => log.id === targetLogId);
     expect(found).toBeUndefined();
   });
+
+  test('GET /api/footprint/metadata - Should retrieve calculator metadata options', async () => {
+    const res = await request(app)
+      .get('/api/footprint/metadata')
+      .set('Authorization', `Bearer ${testToken}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.transport).toBeDefined();
+  });
+
+  test('DELETE /api/footprint/999999 - Should return 404 for non-existent entry', async () => {
+    const res = await request(app)
+      .delete('/api/footprint/999999')
+      .set('Authorization', `Bearer ${testToken}`);
+
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
+
+  test('POST /api/footprint - Should handle database error in createEntry', async () => {
+    const FootprintEntry = require('../../models/FootprintEntry');
+    const originalCreate = FootprintEntry.create;
+    FootprintEntry.create = jest.fn().mockRejectedValue(new Error('Simulated DB Error'));
+
+    const res = await request(app)
+      .post('/api/footprint')
+      .set('Authorization', `Bearer ${testToken}`)
+      .send(mockEntry);
+
+    expect(res.status).toBe(500);
+
+    FootprintEntry.create = originalCreate;
+  });
+
+  test('GET /api/footprint - Should handle database error in getEntries', async () => {
+    const FootprintEntry = require('../../models/FootprintEntry');
+    const originalFindByUser = FootprintEntry.findByUser;
+    FootprintEntry.findByUser = jest.fn().mockRejectedValue(new Error('Simulated DB Error'));
+
+    const res = await request(app)
+      .get('/api/footprint')
+      .set('Authorization', `Bearer ${testToken}`);
+
+    expect(res.status).toBe(500);
+
+    FootprintEntry.findByUser = originalFindByUser;
+  });
+
+  test('DELETE /api/footprint/:id - Should handle database error in deleteEntry', async () => {
+    const FootprintEntry = require('../../models/FootprintEntry');
+    const originalDelete = FootprintEntry.delete;
+    FootprintEntry.delete = jest.fn().mockRejectedValue(new Error('Simulated DB Error'));
+
+    const res = await request(app)
+      .delete('/api/footprint/1')
+      .set('Authorization', `Bearer ${testToken}`);
+
+    expect(res.status).toBe(500);
+
+    FootprintEntry.delete = originalDelete;
+  });
+
+  test('GET /api/footprint/summary - Should handle database error in getSummary', async () => {
+    const FootprintEntry = require('../../models/FootprintEntry');
+    const originalGetCategorySummary = FootprintEntry.getCategorySummary;
+    FootprintEntry.getCategorySummary = jest.fn().mockRejectedValue(new Error('Simulated DB Error'));
+
+    const res = await request(app)
+      .get('/api/footprint/summary')
+      .set('Authorization', `Bearer ${testToken}`);
+
+    expect(res.status).toBe(500);
+
+    FootprintEntry.getCategorySummary = originalGetCategorySummary;
+  });
 });

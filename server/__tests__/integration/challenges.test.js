@@ -98,4 +98,100 @@ describe('Challenges & Education API Integration Tests', () => {
     expect(res.body.success).toBe(true);
     expect(res.body.data.recommendations).toBeDefined();
   });
+
+  test('POST /api/challenges/enroll - Should fail with 404 for non-existent challenge', async () => {
+    const res = await request(app)
+      .post('/api/challenges/enroll')
+      .set('Authorization', `Bearer ${testToken}`)
+      .send({ challengeId: 999999 });
+
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
+
+  test('POST /api/challenges/complete/:id - Should fail with 404 for non-existent challenge', async () => {
+    const res = await request(app)
+      .post('/api/challenges/complete/999999')
+      .set('Authorization', `Bearer ${testToken}`);
+
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
+
+  test('POST /api/challenges/complete/:id - Should return 400 if user is not enrolled', async () => {
+    const res = await request(app)
+      .post('/api/challenges/complete/2')
+      .set('Authorization', `Bearer ${testToken}`);
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.message).toContain('not active in this challenge');
+  });
+
+  test('GET /api/challenges - Should handle database error in listChallenges', async () => {
+    const Challenge = require('../../models/Challenge');
+    const originalListAll = Challenge.listAll;
+    Challenge.listAll = jest.fn().mockRejectedValue(new Error('Simulated DB Error'));
+
+    const res = await request(app)
+      .get('/api/challenges')
+      .set('Authorization', `Bearer ${testToken}`);
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+
+    Challenge.listAll = originalListAll;
+  });
+
+  test('GET /api/challenges/user - Should handle database error in getUserChallenges', async () => {
+    const Challenge = require('../../models/Challenge');
+    const originalFindUserChallenges = Challenge.findUserChallenges;
+    Challenge.findUserChallenges = jest.fn().mockRejectedValue(new Error('Simulated DB Error'));
+
+    const res = await request(app)
+      .get('/api/challenges/user')
+      .set('Authorization', `Bearer ${testToken}`);
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+
+    Challenge.findUserChallenges = originalFindUserChallenges;
+  });
+
+  test('POST /api/challenges/enroll - Should handle unexpected database error in enrollInChallenge', async () => {
+    const Challenge = require('../../models/Challenge');
+    const originalEnroll = Challenge.enroll;
+    Challenge.enroll = jest.fn().mockRejectedValue(new Error('Simulated DB Error'));
+
+    const res = await request(app)
+      .post('/api/challenges/enroll')
+      .set('Authorization', `Bearer ${testToken}`)
+      .send({ challengeId: 2 });
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+
+    Challenge.enroll = originalEnroll;
+  });
+
+  test('POST /api/challenges/complete/:id - Should handle unexpected database error in completeChallenge', async () => {
+    const Challenge = require('../../models/Challenge');
+    const originalComplete = Challenge.complete;
+    Challenge.complete = jest.fn().mockRejectedValue(new Error('Simulated DB Error'));
+
+    // First enroll in challenge 2
+    await request(app)
+      .post('/api/challenges/enroll')
+      .set('Authorization', `Bearer ${testToken}`)
+      .send({ challengeId: 2 });
+
+    const res = await request(app)
+      .post('/api/challenges/complete/2')
+      .set('Authorization', `Bearer ${testToken}`);
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+
+    Challenge.complete = originalComplete;
+  });
 });

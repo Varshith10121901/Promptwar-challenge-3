@@ -180,5 +180,48 @@ describe('Models Unit Tests', () => {
       const entry = await FootprintEntry.findByIdAndUser(99999, userId);
       expect(entry).toBeUndefined();
     });
+
+    test('findByUser with default parameters', async () => {
+      await FootprintEntry.create(userId, {
+        category: 'transport',
+        subCategory: 'car_petrol',
+        value: 15,
+        unit: 'km',
+        carbonKg: 2.7,
+        date: '2026-06-01'
+      });
+      const entries = await FootprintEntry.findByUser(userId);
+      expect(entries.length).toBe(1);
+    });
+
+    test('findByUser with custom parameters', async () => {
+      await FootprintEntry.create(userId, {
+        category: 'transport',
+        subCategory: 'car_petrol',
+        value: 15,
+        unit: 'km',
+        carbonKg: 2.7,
+        date: '2026-06-01'
+      });
+      const entries = await FootprintEntry.findByUser(userId, 5, 0);
+      expect(entries.length).toBe(1);
+    });
+
+    test('getDailyTrends with default and custom parameters', async () => {
+      await FootprintEntry.create(userId, {
+        category: 'energy',
+        subCategory: 'electricity_grid',
+        value: 100,
+        unit: 'kWh',
+        carbonKg: 50.0,
+        date: new Date().toISOString().split('T')[0]
+      });
+
+      const trendsDefault = await FootprintEntry.getDailyTrends(userId);
+      expect(trendsDefault.length).toBeGreaterThanOrEqual(1);
+
+      const trendsCustom = await FootprintEntry.getDailyTrends(userId, 10);
+      expect(trendsCustom.length).toBeGreaterThanOrEqual(1);
+    });
   });
 });

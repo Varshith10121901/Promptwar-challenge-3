@@ -24,4 +24,14 @@ describe('App Route Handlers Integration Tests', () => {
     expect(res.text).toContain('<!DOCTYPE html>');
     expect(res.text).toContain('EcoTracker');
   });
+
+  test('GET /api/security/csrf should return CSRF token and set cookie', async () => {
+    const res = await request(app)
+      .get('/api/security/csrf')
+      .set('x-test-csrf-enforce', 'true');
+      
+    expect(res.status).toBe(200);
+    expect(res.body.csrfToken).toBeDefined();
+    expect(res.headers['set-cookie']).toBeDefined();
+  });
 });
