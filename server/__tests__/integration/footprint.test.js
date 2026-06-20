@@ -17,7 +17,7 @@ beforeAll(async () => {
     .send({
       username: 'trackerUser',
       email: 'tracker@domain.com',
-      password: 'password123'
+      password: 'Password123'
     });
   
   testToken = registerRes.body.token;
@@ -43,7 +43,7 @@ describe('Footprint API Integration Tests', () => {
       .set('Authorization', `Bearer ${testToken}`)
       .send(mockEntry);
 
-    expect(res.status).toBe(211);
+    expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
     expect(res.body.data.carbonKg).toBe(9.0); // 50 * 0.18 = 9.0
     expect(res.body.data.equivalents.carKm).toBe(50);

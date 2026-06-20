@@ -10,6 +10,11 @@
   <link rel="stylesheet" href="/css/pages.css">
 </head>
 <body>
+  <noscript>
+    <div style="background: var(--color-danger); color: white; padding: 15px; text-align: center; font-weight: bold; font-family: sans-serif; position: sticky; top: 0; z-index: 9999;">
+      JavaScript is required to run EcoTracker. Please enable JavaScript in your browser settings to continue.
+    </div>
+  </noscript>
   
   <a href="#main-content" class="skip-link">Skip to Content</a>
 
@@ -87,15 +92,15 @@
         <h2 id="login-modal-title" style="font-size: 1.5rem;">Sign In to EcoTracker</h2>
         <button class="modal-close" id="close-login-btn" aria-label="Close modal">&times;</button>
       </div>
-      <div class="alert-container" id="login-alert" style="display: none; margin-bottom: 15px; padding: 10px; border-radius: 6px; font-size: 0.9rem; background: rgba(239, 68, 68, 0.1); color: var(--color-danger); border: 1px solid rgba(239, 68, 68, 0.2);"></div>
+      <div class="alert-container" id="login-alert" aria-live="assertive" role="alert" style="display: none; margin-bottom: 15px; padding: 10px; border-radius: 6px; font-size: 0.9rem; background: rgba(239, 68, 68, 0.1); color: var(--color-danger); border: 1px solid rgba(239, 68, 68, 0.2);"></div>
       <form id="login-form">
         <div class="form-group">
           <label for="login-username">Username or Email</label>
-          <input type="text" id="login-username" class="form-control" required placeholder="e.g., greenUser">
+          <input type="text" id="login-username" class="form-control" autocomplete="username" required placeholder="e.g., greenUser">
         </div>
         <div class="form-group">
           <label for="login-password">Password</label>
-          <input type="password" id="login-password" class="form-control" required placeholder="••••••••">
+          <input type="password" id="login-password" class="form-control" autocomplete="current-password" required placeholder="••••••••">
         </div>
         <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">Sign In</button>
       </form>
@@ -112,19 +117,21 @@
         <h2 id="register-modal-title" style="font-size: 1.5rem;">Create Account</h2>
         <button class="modal-close" id="close-register-btn" aria-label="Close modal">&times;</button>
       </div>
-      <div class="alert-container" id="register-alert" style="display: none; margin-bottom: 15px; padding: 10px; border-radius: 6px; font-size: 0.9rem; background: rgba(239, 68, 68, 0.1); color: var(--color-danger); border: 1px solid rgba(239, 68, 68, 0.2);"></div>
+      <div class="alert-container" id="register-alert" aria-live="assertive" role="alert" style="display: none; margin-bottom: 15px; padding: 10px; border-radius: 6px; font-size: 0.9rem; background: rgba(239, 68, 68, 0.1); color: var(--color-danger); border: 1px solid rgba(239, 68, 68, 0.2);"></div>
       <form id="register-form">
         <div class="form-group">
-          <label for="register-username">Username (alphanumeric, 3-20 chars)</label>
-          <input type="text" id="register-username" class="form-control" required placeholder="e.g., ecocitizen">
+          <label for="register-username">Username</label>
+          <input type="text" id="register-username" class="form-control" autocomplete="username" required placeholder="e.g., ecocitizen" aria-describedby="register-username-hint">
+          <small id="register-username-hint" style="color: var(--text-secondary); font-size: 0.75rem; display: block; margin-top: 5px;">Alphanumeric, between 3 and 20 characters.</small>
         </div>
         <div class="form-group">
           <label for="register-email">Email Address</label>
-          <input type="email" id="register-email" class="form-control" required placeholder="e.g., you@domain.com">
+          <input type="email" id="register-email" class="form-control" autocomplete="email" required placeholder="e.g., you@domain.com">
         </div>
         <div class="form-group">
-          <label for="register-password">Password (min 6 characters)</label>
-          <input type="password" id="register-password" class="form-control" required placeholder="••••••••">
+          <label for="register-password">Password</label>
+          <input type="password" id="register-password" class="form-control" autocomplete="new-password" required placeholder="••••••••" aria-describedby="register-password-hint">
+          <small id="register-password-hint" style="color: var(--text-secondary); font-size: 0.75rem; display: block; margin-top: 5px;">Must be at least 8 characters, with 1 uppercase letter and 1 number.</small>
         </div>
         <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">Register</button>
       </form>
@@ -151,42 +158,82 @@
     const switchToRegisterBtn = document.getElementById('switch-to-register-btn');
     const switchToLoginBtn = document.getElementById('switch-to-login-btn');
 
-    const showModal = (modal) => {
-      modal.style.display = 'flex';
-      // accessibility focus trap starter
-      const closeBtn = modal.querySelector('.modal-close');
-      if (closeBtn) closeBtn.focus();
+    let lastActiveElement = null;
+
+    const setupFocusTrap = (modal) => {
+      modal.addEventListener('keydown', function(e) {
+        if (e.key === 'Tab') {
+          const focusableElements = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+          const firstFocusableElement = focusableElements[0];
+          const lastFocusableElement = focusableElements[focusableElements.length - 1];
+
+          if (e.shiftKey) { // Shift + Tab
+            if (document.activeElement === firstFocusableElement) {
+              lastFocusableElement.focus();
+              e.preventDefault();
+            }
+          } else { // Tab
+            if (document.activeElement === lastFocusableElement) {
+              firstFocusableElement.focus();
+              e.preventDefault();
+            }
+          }
+        }
+      });
     };
 
-    const hideModal = (modal) => { modal.style.display = 'none'; };
+    const showModal = (modal) => {
+      lastActiveElement = document.activeElement;
+      modal.style.display = 'flex';
+      const closeBtn = modal.querySelector('.modal-close');
+      if (closeBtn) {
+        closeBtn.focus();
+      }
+    };
 
-    if (openLoginBtn) openLoginBtn.addEventListener('click', () => showModal(loginModal));
-    if (getStartedBtn) getStartedBtn.addEventListener('click', () => showModal(registerModal));
+    const hideModal = (modal) => {
+      modal.style.display = 'none';
+      if (lastActiveElement) {
+        lastActiveElement.focus();
+        lastActiveElement = null;
+      }
+    };
+
+    setupFocusTrap(loginModal);
+    setupFocusTrap(registerModal);
+
+    if (openLoginBtn) {
+      openLoginBtn.addEventListener('click', () => showModal(loginModal));
+    }
+    if (getStartedBtn) {
+      getStartedBtn.addEventListener('click', () => showModal(registerModal));
+    }
     
     closeLoginBtn.addEventListener('click', () => hideModal(loginModal));
     closeRegisterBtn.addEventListener('click', () => hideModal(registerModal));
 
     switchToRegisterBtn.addEventListener('click', () => {
-      hideModal(loginModal);
+      // Hide login, but don't restore focus yet since we're opening another modal
+      loginModal.style.display = 'none';
       showModal(registerModal);
     });
 
     switchToLoginBtn.addEventListener('click', () => {
-      hideModal(registerModal);
+      registerModal.style.display = 'none';
       showModal(loginModal);
     });
 
     // Close on overlay click
     window.addEventListener('click', (e) => {
-      if (e.target === loginModal) hideModal(loginModal);
-      if (e.target === registerModal) hideModal(registerModal);
+      if (e.target === loginModal) { hideModal(loginModal); }
+      if (e.target === registerModal) { hideModal(registerModal); }
     });
 
     // Handle escape key
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
-        hideModal(loginModal);
-        hideModal(registerModal);
+        if (loginModal.style.display === 'flex') { hideModal(loginModal); }
+        if (registerModal.style.display === 'flex') { hideModal(registerModal); }
       }
     });
 

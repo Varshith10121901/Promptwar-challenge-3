@@ -1,6 +1,12 @@
 /**
  * Education Controller provides curated carbon literacy resources
  */
+/**
+ * Retrieve curated educational carbon literacy articles and quick facts
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response containing articles and facts
+ */
 const getResources = (req, res) => {
   const articles = [
     {

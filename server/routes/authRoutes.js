@@ -15,5 +15,6 @@ router.post('/login', authLimiter, validateLogin, authController.login);
 // Protected routes (Token authenticated)
 router.get('/profile', authenticateToken, authController.getProfile);
 router.put('/goal', authenticateToken, validateGoal, authController.updateGoal);
+router.post('/refresh', authenticateToken, authController.refresh);
 
 module.exports = router;

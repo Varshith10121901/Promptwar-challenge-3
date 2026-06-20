@@ -20,6 +20,13 @@
     "eqeqeq": "error",
     "curly": "error",
     "semi": ["error", "always"],
-    "quotes": ["error", "single", { "avoidEscape": true }]
+    "quotes": ["error", "single", { "avoidEscape": true }],
+    "no-eval": "error",
+    "no-implied-eval": "error",
+    "no-new-func": "error",
+    "prefer-const": "error",
+    "no-var": "error",
+    "no-throw-literal": "error",
+    "complexity": ["warn", 15]
   }
 }

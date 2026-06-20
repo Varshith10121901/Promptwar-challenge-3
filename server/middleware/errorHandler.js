@@ -6,6 +6,11 @@ const logger = require('../utils/logger');
 
 /**
  * Express error handling middleware
+ * @param {Object} err - Error object
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} _next - Express next middleware function
+ * @returns {Object} JSON response with error details
  */
 const errorHandler = (err, req, res, _next) => {
   const statusCode = err.statusCode || 500;
@@ -14,6 +19,10 @@ const errorHandler = (err, req, res, _next) => {
     success: false,
     message: err.message || 'An unexpected server error occurred.'
   };
+
+  if (err.errors) {
+    response.errors = err.errors;
+  }
 
   // Stack trace only shown in development/testing mode
   if (env.NODE_ENV !== 'production' && err.stack) {
@@ -26,6 +35,7 @@ const errorHandler = (err, req, res, _next) => {
     url: req.originalUrl,
     statusCode,
     message: err.message,
+    errors: err.errors,
     stack: err.stack
   });
 

@@ -22,18 +22,65 @@ document.addEventListener('DOMContentLoaded', async () => {
   const goalModal = document.getElementById('goal-modal');
   const closeGoalBtn = document.getElementById('close-goal-btn');
   const goalForm = document.getElementById('goal-form');
+  const achievementModal = document.getElementById('achievement-modal');
+
+  let lastActiveElement = null;
+
+  const setupFocusTrap = (modal) => {
+    modal.addEventListener('keydown', function(e) {
+      if (e.key === 'Tab') {
+        const focusableElements = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+        const firstFocusableElement = focusableElements[0];
+        const lastFocusableElement = focusableElements[focusableElements.length - 1];
+
+        if (e.shiftKey) { // Shift + Tab
+          if (document.activeElement === firstFocusableElement) {
+            lastFocusableElement.focus();
+            e.preventDefault();
+          }
+        } else { // Tab
+          if (document.activeElement === lastFocusableElement) {
+            firstFocusableElement.focus();
+            e.preventDefault();
+          }
+        }
+      }
+    });
+  };
+
+  const showModal = (modal) => {
+    lastActiveElement = document.activeElement;
+    modal.style.display = 'flex';
+    const closeBtn = modal.querySelector('.modal-close') || modal.querySelector('button');
+    if (closeBtn) {
+      closeBtn.focus();
+    }
+  };
+
+  const hideModal = (modal) => {
+    modal.style.display = 'none';
+    if (lastActiveElement) {
+      lastActiveElement.focus();
+      lastActiveElement = null;
+    }
+  };
+
+  setupFocusTrap(goalModal);
+  if (achievementModal) {
+    setupFocusTrap(achievementModal);
+  }
 
   if (editGoalBtn) {
     editGoalBtn.addEventListener('click', () => {
       const currentGoal = parseFloat(document.getElementById('carbon-goal-val').textContent);
       document.getElementById('input-goal-val').value = isNaN(currentGoal) ? 500 : currentGoal;
-      goalModal.style.display = 'flex';
+      showModal(goalModal);
     });
   }
 
   if (closeGoalBtn) {
     closeGoalBtn.addEventListener('click', () => {
-      goalModal.style.display = 'none';
+      hideModal(goalModal);
     });
   }
 
@@ -45,7 +92,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const response = await API.auth.updateGoal(goalVal);
         if (response.success) {
           document.getElementById('carbon-goal-val').textContent = `${goalVal.toFixed(1)} kg`;
-          goalModal.style.display = 'none';
+          hideModal(goalModal);
           await refreshDashboard(); // Redo metrics comparison
         }
       } catch (err) {
@@ -58,9 +105,33 @@ document.addEventListener('DOMContentLoaded', async () => {
   const closeAchBtn = document.getElementById('close-ach-btn');
   if (closeAchBtn) {
     closeAchBtn.addEventListener('click', () => {
-      document.getElementById('achievement-modal').style.display = 'none';
+      hideModal(achievementModal);
     });
   }
+
+  // Close on overlay click
+  window.addEventListener('click', (e) => {
+    if (e.target === goalModal) { hideModal(goalModal); }
+    if (e.target === achievementModal) { hideModal(achievementModal); }
+  });
+
+  // Handle escape key
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (goalModal.style.display === 'flex') { hideModal(goalModal); }
+      if (achievementModal.style.display === 'flex') { hideModal(achievementModal); }
+    }
+  });
+
+  // Bind local functions to let window access them
+  window.showAchievementUnlocked = (ach) => {
+    lastActiveElement = document.activeElement;
+    showAchievementUnlocked(ach);
+    const closeBtn = document.getElementById('close-ach-btn');
+    if (closeBtn) {
+      closeBtn.focus();
+    }
+  };
 });
 
 /**
@@ -384,7 +455,7 @@ async function loadAIRecommendations() {
  * Log positive carbon offset action from recommendation cards
  */
 async function logRecommendationAction(category, recId, savingKg) {
-  let data = {
+  const data = {
     category: 'consumption',
     subCategory: 'recycled_waste',
     value: Math.ceil(savingKg / 0.35), // matching factor in constants (-0.35) to award equivalent carbon reduction!

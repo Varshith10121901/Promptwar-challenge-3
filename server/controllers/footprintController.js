@@ -7,7 +7,16 @@ const Achievement = require('../models/Achievement');
 const calculator = require('../services/carbonCalculator');
 const cache = require('../services/cacheService');
 const logger = require('../utils/logger');
+const HttpStatus = require('../utils/httpStatus');
+const { NotFoundError } = require('../utils/AppError');
 
+/**
+ * Log a new carbon footprint activity
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ * @returns {Promise<Object>} JSON response containing logged activity details
+ */
 const createEntry = async (req, res, next) => {
   const userId = req.user.id;
   const { category, subCategory, value, unit, date, notes } = req.body;
@@ -39,7 +48,7 @@ const createEntry = async (req, res, next) => {
 
     logger.info('Carbon entry logged', { userId, entryId: entry.id, carbonKg });
 
-    return res.status(211).json({
+    return res.status(HttpStatus.CREATED).json({
       success: true,
       message: 'Carbon activity logged successfully',
       data: {
@@ -55,6 +64,13 @@ const createEntry = async (req, res, next) => {
   }
 };
 
+/**
+ * Retrieve a paginated list of carbon entries for the authenticated user
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ * @returns {Promise<Object>} JSON response containing the list of entries
+ */
 const getEntries = async (req, res, next) => {
   const userId = req.user.id;
   const page = parseInt(req.query.page || '1', 10);
@@ -74,6 +90,14 @@ const getEntries = async (req, res, next) => {
   }
 };
 
+/**
+ * Delete a specific carbon entry for the authenticated user
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ * @returns {Promise<Object>} JSON response confirming deletion
+ * @throws {NotFoundError} If the entry is not found or user is unauthorized
+ */
 const deleteEntry = async (req, res, next) => {
   const userId = req.user.id;
   const entryId = req.params.id;
@@ -81,10 +105,7 @@ const deleteEntry = async (req, res, next) => {
   try {
     const deleted = await FootprintEntry.delete(entryId, userId);
     if (!deleted) {
-      return res.status(404).json({
-        success: false,
-        message: 'Footprint entry not found or unauthorized'
-      });
+      throw new NotFoundError('Footprint entry not found or unauthorized');
     }
 
     // Invalidate insights cache for this user
@@ -100,6 +121,13 @@ const deleteEntry = async (req, res, next) => {
   }
 };
 
+/**
+ * Get aggregated carbon summary and daily trends for the authenticated user
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ * @returns {Promise<Object>} JSON response containing totals, breakdown, and trends
+ */
 const getSummary = async (req, res, next) => {
   const userId = req.user.id;
   const days = parseInt(req.query.days || '30', 10);
@@ -127,6 +155,12 @@ const getSummary = async (req, res, next) => {
   }
 };
 
+/**
+ * Get lookup metadata for the carbon calculator (supported categories, factors, units)
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response containing calculator options
+ */
 const getCalculatorMetadata = (req, res) => {
   const metadata = calculator.getMetadata();
   return res.json({

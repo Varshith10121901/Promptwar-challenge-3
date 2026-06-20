@@ -1,3 +1,4 @@
+/* eslint-disable complexity */
 /**
  * AI/ML-style Personalized Insights Engine
  */

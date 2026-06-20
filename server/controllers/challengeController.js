@@ -3,7 +3,16 @@
  */
 const Challenge = require('../models/Challenge');
 const logger = require('../utils/logger');
+const HttpStatus = require('../utils/httpStatus');
+const { NotFoundError } = require('../utils/AppError');
 
+/**
+ * List all available challenges
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ * @returns {Promise<Object>} JSON response containing list of challenges
+ */
 const listChallenges = async (req, res, next) => {
   try {
     const challenges = await Challenge.listAll();
@@ -16,6 +25,13 @@ const listChallenges = async (req, res, next) => {
   }
 };
 
+/**
+ * Retrieve challenges enrolled or completed by the authenticated user
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ * @returns {Promise<Object>} JSON response containing user challenges
+ */
 const getUserChallenges = async (req, res, next) => {
   const userId = req.user.id;
   try {
@@ -29,6 +45,15 @@ const getUserChallenges = async (req, res, next) => {
   }
 };
 
+/**
+ * Enroll the authenticated user in a specific challenge
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ * @returns {Promise<Object>} JSON response confirming enrollment
+ * @throws {NotFoundError} If the challenge does not exist
+ * @throws {ValidationError} If already enrolled or completed
+ */
 const enrollInChallenge = async (req, res, next) => {
   const userId = req.user.id;
   const { challengeId } = req.body;
@@ -36,16 +61,13 @@ const enrollInChallenge = async (req, res, next) => {
   try {
     const challenge = await Challenge.findById(challengeId);
     if (!challenge) {
-      return res.status(404).json({
-        success: false,
-        message: 'Challenge not found'
-      });
+      throw new NotFoundError('Challenge not found');
     }
 
     const enrollment = await Challenge.enroll(userId, challengeId);
     logger.info('User enrolled in challenge', { userId, challengeId });
     
-    return res.status(211).json({
+    return res.status(HttpStatus.CREATED).json({
       success: true,
       message: `Enrolled in challenge: ${challenge.title}`,
       data: enrollment
@@ -62,6 +84,15 @@ const enrollInChallenge = async (req, res, next) => {
   }
 };
 
+/**
+ * Mark an enrolled challenge as completed for the authenticated user
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ * @returns {Promise<Object>} JSON response confirming completion and points awarded
+ * @throws {NotFoundError} If the challenge does not exist
+ * @throws {ValidationError} If not active or already completed
+ */
 const completeChallenge = async (req, res, next) => {
   const userId = req.user.id;
   const challengeId = req.params.id;
@@ -69,10 +100,7 @@ const completeChallenge = async (req, res, next) => {
   try {
     const challenge = await Challenge.findById(challengeId);
     if (!challenge) {
-      return res.status(404).json({
-        success: false,
-        message: 'Challenge not found'
-      });
+      throw new NotFoundError('Challenge not found');
     }
 
     const completed = await Challenge.complete(userId, challengeId);

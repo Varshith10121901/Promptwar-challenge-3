@@ -1,5 +1,5 @@
 /**
- * Auth Controller handles user registration, login, and profile fetching
+ * Auth Controller handles user registration, login, profile fetching, and token refresh.
  */
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -8,7 +8,16 @@ const User = require('../models/User');
 const Achievement = require('../models/Achievement');
 const Challenge = require('../models/Challenge');
 const logger = require('../utils/logger');
+const HttpStatus = require('../utils/httpStatus');
+const { NotFoundError, AuthenticationError } = require('../utils/AppError');
 
+/**
+ * Register a new user in the system
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ * @returns {Promise<Object>} JSON response containing the registration token and user details
+ */
 const register = async (req, res, next) => {
   const { username, email, password } = req.body;
 
@@ -16,12 +25,12 @@ const register = async (req, res, next) => {
     // 1. Check if user already exists
     const existingUser = await User.findByUsername(username);
     if (existingUser) {
-      return res.status(409).json({ success: false, message: 'Username is already taken' });
+      return res.status(HttpStatus.CONFLICT).json({ success: false, message: 'Username is already taken' });
     }
 
     const existingEmail = await User.findByEmail(email);
     if (existingEmail) {
-      return res.status(409).json({ success: false, message: 'Email is already registered' });
+      return res.status(HttpStatus.CONFLICT).json({ success: false, message: 'Email is already registered' });
     }
 
     // 2. Hash password
@@ -33,9 +42,9 @@ const register = async (req, res, next) => {
     logger.info('New user registered successfully', { userId: newUser.id, username });
 
     // 4. Generate token
-    const token = jwt.sign({ id: newUser.id, username: newUser.username }, env.JWT_SECRET, { expiresIn: '24h' });
+    const token = jwt.sign({ id: newUser.id, username: newUser.username }, env.JWT_SECRET, { expiresIn: '2h' });
 
-    return res.status(211).json({
+    return res.status(HttpStatus.CREATED).json({
       success: true,
       message: 'Registration successful',
       token,
@@ -50,6 +59,14 @@ const register = async (req, res, next) => {
   }
 };
 
+/**
+ * Authenticate a user and return a JWT session token
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ * @returns {Promise<Object>} JSON response containing user details and JWT token
+ * @throws {AuthenticationError} If username/email or password is invalid
+ */
 const login = async (req, res, next) => {
   const { username, password } = req.body;
 
@@ -63,13 +80,13 @@ const login = async (req, res, next) => {
     }
 
     if (!user) {
-      return res.status(401).json({ success: false, message: 'Invalid username/email or password' });
+      throw new AuthenticationError('Invalid username/email or password');
     }
 
     // 2. Verify password
     const isMatch = await bcrypt.compare(password, user.password_hash);
     if (!isMatch) {
-      return res.status(401).json({ success: false, message: 'Invalid username/email or password' });
+      throw new AuthenticationError('Invalid username/email or password');
     }
 
     // 3. Update active date and streak
@@ -79,7 +96,7 @@ const login = async (req, res, next) => {
     logger.info('User logged in successfully', { userId: user.id, username: user.username });
 
     // 4. Generate token
-    const token = jwt.sign({ id: user.id, username: user.username }, env.JWT_SECRET, { expiresIn: '24h' });
+    const token = jwt.sign({ id: user.id, username: user.username }, env.JWT_SECRET, { expiresIn: '2h' });
 
     return res.json({
       success: true,
@@ -98,13 +115,21 @@ const login = async (req, res, next) => {
   }
 };
 
+/**
+ * Fetch authenticated user profile data, including achievements and challenges
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ * @returns {Promise<Object>} JSON response with user profile details
+ * @throws {NotFoundError} If user does not exist
+ */
 const getProfile = async (req, res, next) => {
   const userId = req.user.id;
 
   try {
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
+      throw new NotFoundError('User not found');
     }
 
     // Refresh streak and achievements
@@ -135,6 +160,14 @@ const getProfile = async (req, res, next) => {
   }
 };
 
+/**
+ * Update user's monthly carbon goal
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ * @returns {Promise<Object>} JSON response with the updated goal
+ * @throws {NotFoundError} If the user is not found
+ */
 const updateGoal = async (req, res, next) => {
   const userId = req.user.id;
   const { carbonGoal } = req.body;
@@ -142,7 +175,7 @@ const updateGoal = async (req, res, next) => {
   try {
     const success = await User.updateGoal(userId, carbonGoal);
     if (!success) {
-      return res.status(404).json({ success: false, message: 'User not found or goal unchanged' });
+      throw new NotFoundError('User not found or goal unchanged');
     }
 
     logger.info('User goal updated', { userId, carbonGoal });
@@ -156,9 +189,35 @@ const updateGoal = async (req, res, next) => {
   }
 };
 
+/**
+ * Refresh expired/near-expired JWT tokens for authenticated users
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ * @returns {Object} JSON response containing the refreshed token
+ */
+const refresh = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const username = req.user.username;
+
+    const token = jwt.sign({ id: userId, username }, env.JWT_SECRET, { expiresIn: '2h' });
+
+    logger.info('Token refreshed successfully', { userId });
+
+    return res.json({
+      success: true,
+      token
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   register,
   login,
   getProfile,
-  updateGoal
+  updateGoal,
+  refresh
 };

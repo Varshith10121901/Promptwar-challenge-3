@@ -40,11 +40,10 @@ const API = {
           }
         }
         
-        throw {
-          status: response.status,
-          message: data.message || 'API request failed',
-          errors: data.errors
-        };
+        const errorObj = new Error(data.message || 'API request failed');
+        errorObj.status = response.status;
+        errorObj.errors = data.errors;
+        throw errorObj;
       }
 
       return data;
@@ -52,10 +51,9 @@ const API = {
       if (err.status) {
         throw err;
       }
-      throw {
-        status: 500,
-        message: err.message || 'Network error occurred'
-      };
+      const errorObj = new Error(err.message || 'Network error occurred');
+      errorObj.status = 500;
+      throw errorObj;
     }
   },
 

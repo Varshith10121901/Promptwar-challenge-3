@@ -16,7 +16,7 @@ beforeAll(async () => {
     .send({
       username: 'gamerUser',
       email: 'gamer@domain.com',
-      password: 'password123'
+      password: 'Password123'
     });
   
   testToken = registerRes.body.token;
@@ -44,7 +44,7 @@ describe('Challenges & Education API Integration Tests', () => {
       .set('Authorization', `Bearer ${testToken}`)
       .send({ challengeId: 1 });
 
-    expect(res.status).toBe(211);
+    expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
     expect(res.body.data.status).toBe('active');
   });

@@ -16,9 +16,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const hideAlerts = () => {
     if (loginAlert) {
       loginAlert.style.display = 'none';
+      const userField = document.getElementById('login-username');
+      const passField = document.getElementById('login-password');
+      if (userField) { userField.setAttribute('aria-invalid', 'false'); }
+      if (passField) { passField.setAttribute('aria-invalid', 'false'); }
     }
     if (registerAlert) {
       registerAlert.style.display = 'none';
+      const userField = document.getElementById('register-username');
+      const emailField = document.getElementById('register-email');
+      const passField = document.getElementById('register-password');
+      if (userField) { userField.setAttribute('aria-invalid', 'false'); }
+      if (emailField) { emailField.setAttribute('aria-invalid', 'false'); }
+      if (passField) { passField.setAttribute('aria-invalid', 'false'); }
     }
   };
 
@@ -40,6 +50,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       } catch (err) {
         showAlert(loginAlert, err.message || 'Login failed. Please check your credentials.');
+        const userField = document.getElementById('login-username');
+        const passField = document.getElementById('login-password');
+        if (userField) { userField.setAttribute('aria-invalid', 'true'); }
+        if (passField) { passField.setAttribute('aria-invalid', 'true'); }
       }
     });
   }
@@ -65,8 +79,20 @@ document.addEventListener('DOMContentLoaded', () => {
         if (err.errors) {
           const errorMsgs = err.errors.map(e => e.message).join(', ');
           showAlert(registerAlert, `Registration failed: ${errorMsgs}`);
+          err.errors.forEach(errField => {
+            const input = document.getElementById(`register-${errField.field}`);
+            if (input) {
+              input.setAttribute('aria-invalid', 'true');
+            }
+          });
         } else {
           showAlert(registerAlert, err.message || 'Registration failed.');
+          const userField = document.getElementById('register-username');
+          const emailField = document.getElementById('register-email');
+          const passField = document.getElementById('register-password');
+          if (userField) { userField.setAttribute('aria-invalid', 'true'); }
+          if (emailField) { emailField.setAttribute('aria-invalid', 'true'); }
+          if (passField) { passField.setAttribute('aria-invalid', 'true'); }
         }
       }
     });

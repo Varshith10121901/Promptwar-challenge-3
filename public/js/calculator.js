@@ -1,3 +1,4 @@
+/* eslint-disable complexity */
 /**
  * Carbon Calculator logic and interactive previews
  */
