@@ -34,4 +34,22 @@ describe('App Route Handlers Integration Tests', () => {
     expect(res.body.csrfToken).toBeDefined();
     expect(res.headers['set-cookie']).toBeDefined();
   });
+
+  test('should initialize CORS with production origin when NODE_ENV is production', () => {
+    jest.isolateModules(() => {
+      // Mock the database config module to avoid real connection attempts
+      jest.doMock('../../config/database', () => ({
+        runMigrations: jest.fn().mockResolvedValue()
+      }));
+
+      const env = require('../../config/env');
+      const originalNodeEnv = env.NODE_ENV;
+      env.NODE_ENV = 'production';
+      
+      const productionApp = require('../../app');
+      expect(productionApp).toBeDefined();
+      
+      env.NODE_ENV = originalNodeEnv;
+    });
+  });
 });

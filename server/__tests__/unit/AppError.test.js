@@ -66,4 +66,9 @@ describe('AppError Custom Error Classes', () => {
     expect(error.statusCode).toBe(409);
     expect(error.message).toBe('Conflict occurred');
   });
+
+  test('AppError - Status should be error for non-4xx status codes', () => {
+    const error = new AppError('Server error', 500);
+    expect(error.status).toBe('error');
+  });
 });

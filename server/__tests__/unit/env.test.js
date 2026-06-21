@@ -72,4 +72,34 @@ describe('Environment Variables Unit Tests', () => {
       process.env.DATABASE_FILE = originalDbFile;
     }
   });
+
+  test('should fallback to default PORT, NODE_ENV, and CACHE_TTL if not specified', () => {
+    const originalEnvSecret = process.env.JWT_SECRET;
+    const originalPort = process.env.PORT;
+    const originalNodeEnv = process.env.NODE_ENV;
+    const originalCacheTtl = process.env.CACHE_TTL;
+
+    process.env.JWT_SECRET = 'some_dummy_jwt_secret_token';
+    delete process.env.PORT;
+    delete process.env.NODE_ENV;
+    delete process.env.CACHE_TTL;
+
+    try {
+      const envConfig = require('../../config/env');
+      expect(envConfig.PORT).toBe(3000);
+      expect(envConfig.NODE_ENV).toBe('development');
+      expect(envConfig.CACHE_TTL).toBe(300);
+    } finally {
+      process.env.JWT_SECRET = originalEnvSecret;
+      if (originalPort !== undefined) {
+        process.env.PORT = originalPort;
+      }
+      if (originalNodeEnv !== undefined) {
+        process.env.NODE_ENV = originalNodeEnv;
+      }
+      if (originalCacheTtl !== undefined) {
+        process.env.CACHE_TTL = originalCacheTtl;
+      }
+    }
+  });
 });

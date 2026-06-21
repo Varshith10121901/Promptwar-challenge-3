@@ -78,4 +78,25 @@ describe('ErrorHandler Middleware Unit Tests', () => {
       message: 'Sensitive error'
     });
   });
+  test('should include errors array in response when err.errors is present', () => {
+    env.NODE_ENV = 'development';
+    const err = new Error('Validation failed');
+    err.statusCode = 422;
+    err.errors = [
+      { field: 'email', message: 'Invalid email format' },
+      { field: 'password', message: 'Password too short' }
+    ];
+    
+    errorHandler(err, req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(422);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        success: false,
+        message: 'Validation failed',
+        errors: err.errors,
+        stack: expect.any(String)
+      })
+    );
+  });
 });

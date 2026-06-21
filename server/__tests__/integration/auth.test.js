@@ -313,4 +313,25 @@ describe('Auth API Integration Tests', () => {
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
   });
+
+  test('GET /api/auth/profile - Should return newly earned achievements', async () => {
+    // Fetch profile to find test user's database ID
+    const profileRes = await request(app)
+      .get('/api/auth/profile')
+      .set('Authorization', `Bearer ${userToken}`);
+    const uId = profileRes.body.user.id;
+
+    // Manually set streak_days = 7 in the database
+    await db.run('UPDATE users SET streak_days = 7 WHERE id = ?', [uId]);
+
+    // Query profile again - this should trigger checkAndAward and return the new achievement
+    const res = await request(app)
+      .get('/api/auth/profile')
+      .set('Authorization', `Bearer ${userToken}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.newAchievements).toBeDefined();
+    expect(res.body.newAchievements.length).toBeGreaterThan(0);
+  });
 });

@@ -99,4 +99,14 @@ describe('CSRF Protection Middleware', () => {
     expect(next).toHaveBeenCalled();
     expect(res.status).not.toHaveBeenCalled();
   });
+
+  test('Should handle missing req.signedCookies gracefully', () => {
+    req.headers['x-test-csrf-enforce'] = 'true';
+    delete req.signedCookies;
+    
+    csrfMiddleware(req, res, next);
+    
+    expect(next).toHaveBeenCalled();
+    expect(res.cookie).toHaveBeenCalled();
+  });
 });

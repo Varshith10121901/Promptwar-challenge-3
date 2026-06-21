@@ -52,6 +52,17 @@ describe('Footprint API Integration Tests', () => {
     targetLogId = res.body.data.id; // Save ID to test deletions
   });
 
+  test('POST /api/footprint - Should log a second activity with no new achievements', async () => {
+    const res = await request(app)
+      .post('/api/footprint')
+      .set('Authorization', `Bearer ${testToken}`)
+      .send({ ...mockEntry, notes: 'Second trip' });
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+    expect(res.body.newAchievements).toBeUndefined();
+  });
+
   test('POST /api/footprint - Should return 400 validation error for negative distance', async () => {
     const invalidEntry = { ...mockEntry, value: -5 };
     const res = await request(app)
@@ -81,7 +92,7 @@ describe('Footprint API Integration Tests', () => {
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect(res.body.totalEmissions).toBe(9.0);
+    expect(res.body.totalEmissions).toBe(18.0);
     expect(res.body.breakdown.length).toBeGreaterThanOrEqual(1);
     expect(res.body.breakdown[0].category).toBe('transport');
   });

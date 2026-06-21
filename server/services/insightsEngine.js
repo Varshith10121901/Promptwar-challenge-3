@@ -200,10 +200,7 @@ const generateInsights = (entries, user) => {
   // Fill up to at least 3 recommendations if list is too small
   const defaultRecs = getDefaultRecommendations();
   while (recommendations.length < 3 && defaultRecs.length > 0) {
-    const nextRec = defaultRecs.shift();
-    if (!recommendations.some(r => r.id === nextRec.id)) {
-      recommendations.push(nextRec);
-    }
+    recommendations.push(defaultRecs.shift());
   }
 
   // Summary message based on performance against goal

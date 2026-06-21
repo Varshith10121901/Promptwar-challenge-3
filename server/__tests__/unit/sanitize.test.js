@@ -64,4 +64,12 @@ describe('Sanitize Input Middleware', () => {
     expect(customReq.body).toBeNull();
     expect(customReq.query.xss).toBe('&lt;script&gt;');
   });
+
+  test('Should handle missing body, query, and params', () => {
+    const customReq = {};
+    sanitizeInput(customReq, res, next);
+    expect(customReq.body).toBeUndefined();
+    expect(customReq.query).toBeUndefined();
+    expect(customReq.params).toBeUndefined();
+  });
 });

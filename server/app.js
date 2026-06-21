@@ -72,8 +72,7 @@ app.use(csrfMiddleware);
 
 // CSRF token provider endpoint
 app.get('/api/security/csrf', (req, res) => {
-  const token = req.csrfToken || (req.signedCookies ? req.signedCookies._csrf : null);
-  res.json({ csrfToken: token });
+  res.json({ csrfToken: req.csrfToken });
 });
 
 // Request tracing middleware

@@ -175,13 +175,23 @@ describe('AI Insights Engine Unit Tests', () => {
 
   test('should support diesel fuelType and fallback user goal', () => {
     const entries = [
-      { category: 'transport', sub_category: 'car_diesel', carbon_kg: 90, date: '2026-06-01' }
+      { category: 'transport', sub_category: 'car_diesel', carbon_kg: 90, date: '2026-06-01' },
+      { category: 'transport', sub_category: 'motorbike', carbon_kg: 10, date: '2026-06-02' }
     ];
     // Pass user without carbon_goal to trigger default 500.0 goal
     const result = engine.generateInsights(entries, { username: 'goalLessUser' });
     expect(result.summary).toContain('monthly target of 500');
     const rec = result.recommendations.find(r => r.id === 'rec_transport_car');
     expect(rec.description).toContain('diesel car emissions');
+  });
+
+  test('should handle energy recommendations when grid electricity is not logged', () => {
+    const entries = [
+      { category: 'energy', sub_category: 'coal', carbon_kg: 100, date: '2026-06-01' },
+      { category: 'food', sub_category: 'vegetables', carbon_kg: 5, date: '2026-06-02' }
+    ];
+    const result = engine.generateInsights(entries, mockUser);
+    expect(result.recommendations.find(r => r.id === 'rec_energy_efficiency')).toBeUndefined();
   });
 
   test('should handle minimal savings fallbacks for food and energy', () => {

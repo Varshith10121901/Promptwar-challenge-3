@@ -82,6 +82,11 @@ describe('Models Unit Tests', () => {
       const u = await User.findById(99999);
       expect(u).toBeNull();
     });
+
+    test('updateGoal should return false if user not found', async () => {
+      const success = await User.updateGoal(99999, 300.0);
+      expect(success).toBe(false);
+    });
   });
 
   describe('Challenge Model', () => {
@@ -117,6 +122,17 @@ describe('Models Unit Tests', () => {
       const c = await Challenge.findById(99999);
       expect(c).toBeUndefined();
     });
+
+    test('enroll should succeed when previous enrollment status is failed', async () => {
+      await Challenge.enroll(userId, challengeId);
+      await Challenge.updateChallengeStatus(userId, challengeId, 'failed');
+      const result = await Challenge.enroll(userId, challengeId);
+      expect(result).toEqual(expect.objectContaining({
+        userId,
+        challengeId,
+        status: 'active'
+      }));
+    });
   });
 
   describe('Achievement Model', () => {
@@ -137,6 +153,38 @@ describe('Models Unit Tests', () => {
       const newlyEarned = await Achievement.checkAndAward(userId);
       expect(newlyEarned).toEqual([]);
       getSpy.mockRestore();
+    });
+
+    test('checkAndAward fallback when logCountRes is null', async () => {
+      const originalGet = db.get;
+      db.get = jest.fn().mockImplementation((sql, params) => {
+        if (sql.includes('COUNT(*) as count FROM footprint_entries')) {
+          return Promise.resolve(null);
+        }
+        return originalGet(sql, params);
+      });
+
+      const newlyEarned = await Achievement.checkAndAward(userId);
+      expect(newlyEarned).toBeDefined();
+
+      db.get = originalGet;
+    });
+
+    test('checkAndAward fallback when award changes is 0', async () => {
+      const originalRun = db.run;
+      db.run = jest.fn().mockImplementation((sql, params) => {
+        if (sql.includes('INSERT OR IGNORE INTO user_achievements')) {
+          return Promise.resolve({ changes: 0 });
+        }
+        return originalRun(sql, params);
+      });
+
+      await originalRun('UPDATE users SET streak_days = 7 WHERE id = ?', [userId]);
+
+      const newlyEarned = await Achievement.checkAndAward(userId);
+      expect(newlyEarned).toEqual([]);
+
+      db.run = originalRun;
     });
 
     test('checkAndAward criteria validation: streak, category logs', async () => {
