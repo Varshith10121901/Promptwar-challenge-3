@@ -7,6 +7,5 @@ coverage/
 .gitignore
 .env
 README.md
-server/__tests__/
 jest.config.js
 .eslintrc.json
